@@ -1,0 +1,149 @@
+{
+  "app": { "url": "https://yuno-web-production.up.railway.app/", "selfBoot": false },
+  "intro": "Agent Orchestration is a local-first control plane for AI agents: you configure agents as personas, wire them into workflows that hand work off to each other, and run those workflows from a web dashboard or straight from Slack — while a live monitor records every handoff with its cost and the guardrails that kept it safe. The deployed instance runs in demo mode, so agent message bodies are placeholder text; the orchestration around them — the graph, the handoffs, the per-step cost, the approval gates — is real.",
+  "outro": "Compose agents, set the rails, and ship.",
+  "flows": [
+    {
+      "id": "agent-orchestration-tour",
+      "title": "Agent Orchestration",
+      "steps": [
+        {
+          "id": "c-intro",
+          "kind": "card",
+          "intent": "Opening card: explain what Agent Orchestration is and who it's for, over an animated graphic of agents handing work down a chain.",
+          "seconds": 17,
+          "card": {
+            "variant": "title",
+            "title": "Agent Orchestration",
+            "subtitle": "Configure AI agents. Wire them into workflows. Run them from the web — or from Slack."
+          }
+        },
+        {
+          "id": "c-arch",
+          "kind": "card",
+          "intent": "Architecture card: one Node service serves the UI, runs the workflow engine and agent runtime, and persists everything to SQLite; Slack and the web UI are two front doors.",
+          "seconds": 20,
+          "card": {
+            "variant": "diagram",
+            "title": "One service, two front doors",
+            "subtitle": "Web UI and Slack both drive the same workflow engine"
+          }
+        },
+        {
+          "id": "s-landing",
+          "kind": "beat",
+          "intent": "Establish the dashboard: a live websocket connection, the agent and workflow-template counts, and a running cost meter in the sidebar.",
+          "seconds": 11,
+          "waitFor": "[data-testid=\"connection-status\"]"
+        },
+        {
+          "id": "s-graph",
+          "kind": "beat",
+          "intent": "Show that a workflow is a directed graph of agents joined by conditional edges — here the Coder hands off to the Reviewer on an 'always' edge.",
+          "seconds": 16,
+          "waitFor": "[aria-label=\"Workflow graph\"]",
+          "focus": "[aria-label=\"Workflow graph\"]",
+          "highlight": "Coder → Reviewer"
+        },
+        {
+          "id": "s-agents",
+          "kind": "action",
+          "intent": "Open the agent roster to show the configured personas.",
+          "seconds": 9,
+          "action": { "type": "click", "selector": "[data-testid=\"nav-agents\"]" },
+          "waitFor": "[data-testid=\"agent-list\"]"
+        },
+        {
+          "id": "s-agent-card",
+          "kind": "beat",
+          "intent": "Each agent is a persona with a role, a model, the tools it may call, and the channels it listens on.",
+          "seconds": 14,
+          "waitFor": ".agent-card",
+          "focus": ".agent-card",
+          "highlight": "A persona: role · model · tools"
+        },
+        {
+          "id": "s-open-coder",
+          "kind": "action",
+          "intent": "Open the Coder agent to reveal its full configuration in a drawer.",
+          "seconds": 8,
+          "action": { "type": "click", "selector": "[aria-label=\"Edit agent Coder\"]" },
+          "waitFor": ".drawer"
+        },
+        {
+          "id": "s-guardrails",
+          "kind": "beat",
+          "intent": "The guardrails section is the safety story: a spend cap in dollars, a tool-call ceiling, and explicitly blocked actions like rm -rf and force-push.",
+          "seconds": 20,
+          "waitFor": "fieldset.drawer-section >> nth=2",
+          "focus": "fieldset.drawer-section >> nth=2",
+          "highlight": "Guardrails: cost · tool calls · blocked actions"
+        },
+        {
+          "id": "s-run",
+          "kind": "action",
+          "intent": "Close the drawer, switch to the Research pipeline, give it a prompt, and run it — the handoff chain is recorded as messages.",
+          "seconds": 20,
+          "pre": [
+            { "type": "click", "selector": ".drawer-close" },
+            { "type": "click", "selector": "[data-testid=\"nav-workflows\"]" },
+            { "type": "select", "selector": "[data-testid=\"workflow-select\"]", "value": "Research pipeline" },
+            { "type": "type", "selector": ".prompt-field input", "value": "Compare Postgres and SQLite for our workload and recommend one." }
+          ],
+          "action": { "type": "click", "selector": "[data-testid=\"run-workflow\"]" },
+          "waitFor": "text=/completed/i"
+        },
+        {
+          "id": "s-run-detail",
+          "kind": "beat",
+          "intent": "The monitor records the run as a chain of messages — human to Researcher, Researcher to Synthesizer — each tagged with its direction and an estimated cost.",
+          "seconds": 18,
+          "waitFor": "[aria-label=\"Workflow message timeline\"]",
+          "focus": "[aria-label=\"Workflow message timeline\"]",
+          "highlight": "Researcher → Synthesizer · cost per step"
+        },
+        {
+          "id": "s-approval",
+          "kind": "action",
+          "intent": "Run the Development pipeline instead — it pauses at Awaiting approval, because the Coder requires a human to sign off before it acts. In production that approval comes back from Slack.",
+          "seconds": 18,
+          "pre": [
+            { "type": "select", "selector": "[data-testid=\"workflow-select\"]", "value": "Development pipeline" }
+          ],
+          "action": { "type": "click", "selector": "[data-testid=\"run-workflow\"]" },
+          "waitFor": "text=/await/i"
+        },
+        {
+          "id": "s-slack",
+          "kind": "beat",
+          "intent": "The same workflows can be triggered from Slack: mention the bot, the request is signature-verified at the ingress endpoint, and the same cost guardrails apply.",
+          "seconds": 15,
+          "pre": [
+            { "type": "click", "selector": "[data-testid=\"nav-slack\"]" }
+          ],
+          "waitFor": ".slack-item",
+          "focus": ".slack-item",
+          "highlight": "Trigger from Slack — same rails"
+        },
+        {
+          "id": "c-outro",
+          "kind": "card",
+          "intent": "Closing card over the agent-chain graphic settling.",
+          "seconds": 8,
+          "card": {
+            "variant": "outro",
+            "title": "Agent Orchestration",
+            "subtitle": "Compose agents. Set the rails. Ship it."
+          }
+        }
+      ]
+    }
+  ],
+  "prerequisites": {
+    "secrets": [
+      { "name": "ANTHROPIC_API_KEY", "purpose": "vision-grounded narration (script stage)" },
+      { "name": "ELEVENLABS_API_KEY", "purpose": "voiceover synthesis (VO stage)" }
+    ],
+    "seed": "Deployed instance is seeded on first boot with 4 agents (Coder, Reviewer, Researcher, Synthesizer) and 2 workflow templates (Development pipeline, Research pipeline). No login. Runs in demo mode — agent outputs are placeholder echoes."
+  }
+}

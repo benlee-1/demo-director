@@ -1,0 +1,33 @@
+{
+  "name": "showreel",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Turns a built app into a narrated demo video: capture (Playwright) -> vision script -> ElevenLabs VO -> Remotion compose, audio as the master timeline.",
+  "scripts": {
+    "capture": "tsx src/capture.ts",
+    "script": "tsx src/script.ts",
+    "vo": "tsx src/vo.ts",
+    "render": "tsx src/render.ts",
+    "run": "tsx src/run.ts"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.102.0",
+    "@remotion/bundler": "^4.0.0",
+    "@remotion/cli": "^4.0.0",
+    "@remotion/renderer": "^4.0.0",
+    "@remotion/transitions": "^4.0.473",
+    "playwright": "^1.50.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^18.3.0",
+    "dotenv": "^16.4.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  }
+}
